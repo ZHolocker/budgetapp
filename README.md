@@ -1,2 +1,2 @@
 # budgetapp
-school budget app
+school budget app with git version control
