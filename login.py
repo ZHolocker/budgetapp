@@ -22,7 +22,6 @@ def login():
         messagebox.showerror("Login Error", "Invalid username or password!")
         
 #load the background image
-#bg_image = PhotoImage(file=r"\\wsl$\Ubuntu\home\mrholocker\workspace\github.com\ZHolocker\budgetapp\budgetapp\logo.png")
 img = Image.open(r"\\wsl$\Ubuntu\home\mrholocker\workspace\github.com\ZHolocker\budgetapp\budgetapp\logo.png")
 img = img.resize((400,200))
 bg_image = ImageTk.PhotoImage(img)
@@ -49,14 +48,6 @@ login_button.grid(row=4, column=0, columnspan=2, pady=30)
 
 
 frame.pack()
-
-
-
-
-
-
-
-
 
 
 
