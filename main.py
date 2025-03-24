@@ -3,12 +3,6 @@ from tkinter import messagebox
 import sqlite3
 from PIL import Image, ImageTk
 
-
-
-
-
-
-
 # Function to display the main screen
 def show_main_screen(root):
     # Create the main screen window
