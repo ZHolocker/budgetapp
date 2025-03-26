@@ -23,8 +23,9 @@ cursor = connection.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS budget_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    description TEXT,
-    amount REAL
+    category TEXT,
+    amount REAL,
+    date DATE
 )
 """)
 connection.commit()
