@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import sqlite3
 from main import show_main_screen
+import re
 
 # Create login window
 root = tk.Tk()
@@ -43,6 +44,13 @@ def login(root):
 def new_user():
     username = username_entry.get()
     password = password_entry.get()
+    
+    # Module 4 security additions to enforce a minimum password length and use of special characters
+    # industry standard says 6-8 characters minimum is good, since this is a simple app, I chose 6 characters
+    #I put the return at the end to end the function if the user's password doesn't meet the requirements
+    if len(password) < 6 or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        messagebox.showerror("Password Error", "Password must be at least 6 characters long and contain at least one special character.")
+        return
 
     if username and password:
         connection = sqlite3.connect("users.db")

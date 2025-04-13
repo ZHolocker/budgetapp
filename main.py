@@ -136,9 +136,11 @@ def show_main_screen(root):
     main_screen = tk.Toplevel(root)
     main_screen.title("Budget App - Main Screen")
     main_screen.geometry('540x600')
-    main_screen.configure(bg='#333333')
+    main_screen.configure(bg="#333333")
 
+    # Create the outer frame
     frame = tk.Frame(main_screen, bg="#333333")
+    frame.grid(row=0, column=0, sticky="nsew")  # Use grid instead of pack to control placement
 
     # Load logo image for the main screen
     img = Image.open("logo.png")
@@ -146,26 +148,70 @@ def show_main_screen(root):
     bg_image = ImageTk.PhotoImage(img)
     background_label = tk.Label(frame, image=bg_image, bg="#333333")
     background_label.image = bg_image  # Keep a reference to prevent garbage collection
+    background_label.grid(row=0, column=0, columnspan=2, pady=10)  # Logo placed in the first row
 
     # Create buttons with their respective functions
     add_button = tk.Button(frame, text="Add Entry", bg="lightblue", font=("Arial", 16), command=lambda: add_budget(main_screen))
     update_button = tk.Button(frame, text="Update Entry", bg="lightgreen", font=("Arial", 16), command=lambda: update_budget(main_screen))
+    delete_button = tk.Button(frame, text="Delete Entry", bg="lightcoral", font=("Arial", 16), command=lambda: delete_budget(main_screen))
     display_button = tk.Button(frame, text="Display All Entries", bg="lightyellow", font=("Arial", 16), command=lambda: display_all_entries(main_screen))
+    report_button = tk.Button(frame, text="Generate Report", bg="lightgray", font=("Arial", 16), command=lambda: generate_report(main_screen))
 
-    # Widget placements
-    background_label.grid(row=0, column=0, columnspan=2, sticky="news", pady=10)
-    add_button.grid(row=1, column=0, columnspan=2, pady=10)
-    update_button.grid(row=2, column=0, columnspan=2, pady=10)
-    display_button.grid(row=4, column=0, columnspan=2, pady=10)
+    # Pack the buttons below the logo
+    add_button.grid(row=1, column=0, columnspan=2, pady=5, sticky="ew")
+    update_button.grid(row=2, column=0, columnspan=2, pady=5, sticky="ew")
+    delete_button.grid(row=3, column=0, columnspan=2, pady=5, sticky="ew")
+    display_button.grid(row=4, column=0, columnspan=2, pady=5, sticky="ew")
+    report_button.grid(row=5, column=0, columnspan=2, pady=5, sticky="ew")
 
-    frame.pack()
+    # Scrollable frame to display the first 5 entries under the logo
+    entries_frame = tk.Frame(main_screen, bg="#333333")
+    entries_frame.grid(row=1, column=0, pady=10, columnspan=2, sticky="ew")  # Place directly below the logo and buttons
 
-    main_screen.protocol("WM_DELETE_WINDOW", lambda: close_main_screen(main_screen))
+    # Add a scrollbar to the frame
+    canvas = tk.Canvas(entries_frame, bg="#333333", width=400, height=150)
+    scrollbar = tk.Scrollbar(entries_frame, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.grid(row=0, column=0, sticky="ew")
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    # Create a frame inside the canvas to hold the entries
+    entries_inner_frame = tk.Frame(canvas, bg="#333333")
+    canvas.create_window((0, 0), window=entries_inner_frame, anchor="nw")
+
+    def load_entries():
+        # Fetch the first 5 entries from the database
+        connection = sqlite3.connect("budget.db")
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM budget_entries LIMIT 5")
+        rows = cursor.fetchall()
+        connection.close()
+
+        for widget in entries_inner_frame.winfo_children():
+            widget.destroy()  # Clear the existing entries before adding new ones
+
+        # Display the first 5 entries
+        for row in rows:
+            entry_id, category, amount, date = row
+            entry_label = tk.Label(entries_inner_frame, text=f"ID: {entry_id}, Category: {category}, Amount: {amount}, Date: {date}", 
+                                   font=("Arial", 12), bg="#333333", fg="#FFFFFF")
+            entry_label.pack(anchor="w", padx=10, pady=5)
+
+        # Update the scrollable region to the new height
+        entries_inner_frame.update_idletasks()
+        canvas.config(scrollregion=canvas.bbox("all"))
+
+    # Load entries when the window is first displayed
+    load_entries()
 
     # Function to close the main screen and return to login screen
     def close_main_screen(screen):
         screen.destroy()
         root.deiconify()  # Show the login screen again
+
+    main_screen.protocol("WM_DELETE_WINDOW", lambda: close_main_screen(main_screen))
+
+
 
 # Start the application with login screen
 if __name__ == "__main__":
